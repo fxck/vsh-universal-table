@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+
+.__wrap {
+  &.is-active {
+    background: #f2f2f2;
+  }
+}

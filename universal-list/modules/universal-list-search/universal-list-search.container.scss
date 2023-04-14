@@ -1,0 +1,108 @@
+@import 'variables';
+@import 'theme';
+@import 'functions';
+
+:host {
+  display: block;
+}
+
+  .__title {
+    padding-top: 22px;
+    padding-right: $bu / 2;
+    overflow: hidden;
+
+    text-transform: capitalize;
+    font-weight: 400;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    color: mat-color($mat-grey, 500);
+  }
+
+  .__prefix-icon {
+    margin-right: 10px;
+  }
+
+  .__search-form {
+    position: relative;
+  }
+
+    .__suffix {
+      position: absolute;
+      top: 10px;
+      right: 5px;
+    }
+
+  .__bookmarks-pop {
+    width: 400px;
+    padding: $bu / 2;
+  }
+
+    .__bookmarks-pop_header {
+      margin-left: -12px;
+      margin-right: -12px;
+      margin-top: -12px;
+    }
+
+  .__suggest-spinner-wrap {
+    height: 100px;
+    text-align: center;
+  }
+
+  .__suggest-spinner {
+    display: block;
+    margin: 0 auto;
+    margin-top: 80px;
+  }
+
+  .__suggest-pop {
+    width: 100%;
+    padding: 0;
+    margin-top: -21px;
+  }
+
+    .__suggest-item {
+      display: block;
+
+
+      cursor: pointer;
+
+      &:hover {
+        background: #f8f8f8;
+      }
+    }
+
+  .__filters-pop {
+    width: 580px;
+    padding: $bu / 1.2;
+  }
+
+    .__filters-pop_header {
+      margin-left: -$bu / 1.2;
+      margin-right: -$bu / 1.2;
+      margin-top: -$bu / 1.2;
+    }
+
+  .__inactive-columns-toggle {
+    &::ng-deep {
+      .mat-slide-toggle-thumb {
+        background-color: #ffffff !important;
+      }
+
+      .mat-slide-toggle-bar {
+        background-color: rgba(255, 255, 255, 0.5) !important;
+      }
+    }
+  }
+
+  .__footer {
+    padding-top: $bu / 1.5;
+  }
+
+  .__send {
+    margin-left: $bu / 2;
+  }
+
+    .__send-icon {
+      margin-left: 6px;
+    }

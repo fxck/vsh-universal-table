@@ -1,0 +1,226 @@
+<div
+  class="__wrap"
+  *ngIf="!(forceHide && !forceShow) && !(!forceHide && !activeFiltersMap[data.name] && !forceShow)">
+  <div
+    class="__inner"
+    fxLayout>
+
+    <!-- name -->
+    <div fxFlex="150px">
+      <h5
+        class="__title"
+        [class.has-add-button]="data.type !== columnTypes.Boolean">
+        {{ data.alias }}
+      </h5>
+    </div>
+
+    <!-- filters -->
+    <div fxFlex class="__filters">
+
+      <div
+        *ngFor="let ctrl of form; let ctrlIndex = index;"
+        class="__filters_filter">
+        <div
+          fxLayout="row"
+          fxLayoutWrap="wrap"
+          fxLayoutGap="20px grid">
+
+          <div
+            fxFlex="60px"
+            *ngIf="data.type !== columnTypes.Boolean">
+            <!-- operator -->
+            <mat-form-field class="__form-field" floatLabel="never">
+              <mat-select [formControl]="ctrl.get('operator')">
+                <mat-option
+                  *ngFor="let operator of data.operators; trackBy: trackBy;"
+                  [value]="operator">
+                  {{ operatorMap[operator] }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div fxFlex [ngSwitch]="data.type">
+
+            <!-- type: string -->
+            <div *ngSwitchCase="columnTypes.String">
+
+              <!-- doesn't have suggest -->
+              <ng-container *ngIf="!data.reference || !data.suggest; else hasSuggestRef">
+                <mat-form-field class="__form-field" floatLabel="never">
+                  <input
+                    matInput
+                    [formControl]="ctrl.get('value')"
+                    placeholder="Zadejte řetezec"
+                    type="text"
+                  />
+                </mat-form-field>
+              </ng-container>
+
+              <!-- has suggest -->
+              <ng-template #hasSuggestRef>
+                <mat-form-field class="__form-field" floatLabel="never">
+                  <input
+                    matInput
+                    (input)="suggest.emit({
+                      value: suggestInputRef.value,
+                      name: data.name,
+                      entity: data.reference,
+                      column: data.name
+                    })"
+                    #suggestInputRef
+                    [formControl]="ctrl.get('value')"
+                    [matAutocomplete]="suggestRef"
+                    placeholder="Vyhledejte, nebo zadejte řetězec"
+                    type="text"
+                  />
+                </mat-form-field>
+
+                <mat-autocomplete #suggestRef="matAutocomplete">
+                  <mat-option
+                    *ngFor="let option of suggested"
+                    (onSelectionChange)="suggestChosen.emit(index)"
+                    [value]="option.text">
+                    {{ option.text }}
+                  </mat-option>
+                </mat-autocomplete>
+
+              </ng-template>
+
+            </div>
+
+            <!-- type: int -->
+            <div *ngSwitchCase="columnTypes.Int">
+              <mat-form-field class="__form-field" floatLabel="never">
+                <input
+                  matInput
+                  [formControl]="ctrl.get('value')"
+                  placeholder="Zadejte číslo"
+                  type="text"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- type: float -->
+            <div *ngSwitchCase="columnTypes.Float">
+              <mat-form-field class="__form-field" floatLabel="never">
+                <input
+                  matInput
+                  [formControl]="ctrl.get('value')"
+                  placeholder="Zadejte číslo"
+                  type="text"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- type: datetime -->
+            <div *ngSwitchCase="columnTypes.Datetime">
+              <mat-form-field class="__form-field" floatLabel="never">
+
+                <input
+                  matInput
+                  [matDatepicker]="dpRef"
+                  [formControl]="ctrl.get('value')"
+                  placeholder="Vyberte datum"
+                  type="text"
+                />
+
+                <mat-datepicker-toggle
+                  matPrefix
+                  [for]="dpRef">
+                </mat-datepicker-toggle>
+
+                <mat-datepicker #dpRef></mat-datepicker>
+
+              </mat-form-field>
+            </div>
+
+            <!-- type: enum -->
+            <div *ngSwitchCase="columnTypes.Enum">
+              <mat-form-field class="__form-field" floatLabel="never">
+                <mat-placeholder>Vyberte ze seznamu..</mat-placeholder>
+                <mat-select [formControl]="ctrl.get('value')">
+                  <mat-option [value]="undefined">-</mat-option>
+
+                  <ng-container *ngIf="data
+                    && data.typeData
+                    && data.typeData.values
+                    && data.typeData.values.length
+                    && !(data.typeData.values[0] | isString); else isStringRef">
+                    <mat-option
+                      *ngFor="let values of data.typeData.values; trackBy: trackBy;"
+                      [value]="values.value">
+                      {{
+                        values.translates && values.translates.cs
+                          ? values.translates.cs
+                          : values.value
+                      }}
+                    </mat-option>
+                  </ng-container>
+
+                  <ng-template #isStringRef>
+                    <mat-option
+                      *ngFor="let value of data.typeData.values; trackBy: trackBy;"
+                      [value]="value">
+                      {{ value }}
+                    </mat-option>
+                  </ng-template>
+
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- type: bool -->
+            <div *ngSwitchCase="columnTypes.Boolean">
+
+              <mat-checkbox
+                class="__is-not-checkbox"
+                indeterminate
+                [formControl]="ctrl.get('value')">
+                Aktivní
+              </mat-checkbox>
+
+              <mat-button-toggle-group [formControl]="ctrl.get('operator')">
+                <mat-button-toggle
+                  *ngFor="let operator of data.operators; trackBy: trackBy;"
+                  [value]="operator">
+                  {{ operator }}
+                </mat-button-toggle>
+              </mat-button-toggle-group>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <button
+          mat-icon-button
+          type="button"
+          class="__remove-button"
+          *ngIf="ctrlIndex > 0"
+          color="warn"
+          type="button"
+          (click)="removeAndControl.emit(ctrlIndex)">
+          <mat-icon class="__remove-button_icon">remove_circle_outline</mat-icon>
+        </button>
+      </div>
+
+      <div class="__add-button-wrap">
+        <button
+          class="__add-button"
+          type="button"
+          *ngIf="data.type !== columnTypes.Boolean"
+          mat-button
+          color="primary"
+          type="button"
+          (click)="addAndControl.emit()">
+          Přidat <strong>"and"</strong> řádek
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

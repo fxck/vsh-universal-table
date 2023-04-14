@@ -1,0 +1,57 @@
+<div
+  class="__item"
+  *ngFor="let item of (bookmarkLinks$ | async); let index = index; trackBy: trackBy;">
+
+  <a
+    class="__link"
+    (click)="clicked.emit()"
+    [routerLink]="item.route">
+    {{ item.name }}
+  </a>
+
+  <div class="__buttons">
+    <button
+      class="__default-button  __buttons_button"
+      [class.is-active]="item.isDefault"
+      type="button"
+      mat-icon-button
+      type="button"
+      [matTooltip]="!item.isDefault ? 'Nastavit jako defaultní filter' : 'Odebrat defaultní filtr'"
+      (click)="onSetDefault$.next({ id: item.id, isDefault: item.isDefault })">
+      <mat-icon class="__buttons_icon">
+        {{ item.isDefault ? 'favorite' : 'favorite_border' }}
+      </mat-icon>
+    </button>
+
+    <button
+      class="__remove-button  __buttons_button"
+      type="button"
+      mat-icon-button
+      color="warn"
+      type="button"
+      (click)="onRemove$.next(item.id)">
+      <mat-icon class="__buttons_icon">delete</mat-icon>
+    </button>
+  </div>
+
+</div>
+
+<div class="__separator" *ngIf="(bookmarkLinks$ | async)?.length"></div>
+
+<form
+  (submit)="onAdd$.next(form.value);form.reset()"
+  [formGroup]="form">
+  <mat-form-field appearance="outline" class="__form-field">
+    <mat-label>Přidat současné nastavení do oblíbených</mat-label>
+    <input
+      matInput
+      type="text"
+      placeholder="Zadejte název.."
+      [formControl]="form"
+    />
+    <button matSuffix mat-icon-button>
+      <mat-icon>save</mat-icon>
+    </button>
+  </mat-form-field>
+</form>
+

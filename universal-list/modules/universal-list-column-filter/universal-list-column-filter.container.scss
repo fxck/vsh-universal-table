@@ -1,0 +1,76 @@
+@import 'variables';
+@import 'theme';
+@import 'functions';
+
+:host {
+  display: block;
+  padding: 0 12px;
+}
+
+  .__item {
+    margin-bottom: 6px;
+    margin-top: 6px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    &:hover {
+      .__drag-handle {
+        opacity: 1;
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .__drag-handle {
+    vertical-align: middle;
+    margin-right: 4px;
+    opacity: 0;
+    transition: opacity 200ms;
+
+    color: mat-color($mat-grey, 500);
+    cursor: grab;
+
+    &:hover {
+      color: color(accent);
+    }
+  }
+
+  .__col-name {
+    display: inline-block;
+
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
+
+  .__title {
+    margin-bottom: 8px;
+
+    font-size: 18px;
+  }
+
+  .__title--active {
+    margin-bottom: 24px;
+    padding-left: 28px;
+  }
+
+  .__search-field {
+    font-size: 14px;
+    // margin-bottom: 6px;
+
+    &::ng-deep {
+      .mat-form-field-flex {
+        align-items: flex-end;
+      }
+    }
+  }
+
+  .__search-icon {
+    margin-right: 6px;
+    margin-bottom: 1px;
+  }

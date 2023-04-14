@@ -1,0 +1,157 @@
+<table
+  mat-table
+  #table
+  matSort
+  class="__table"
+  [ngClass]="{
+    'has-hover': !disableHoverStyles,
+    'has-link': hasLink,
+    'has-options': hasOptions,
+    'is-loading': isLoading
+  }"
+  [trackBy]="trackBy"
+  (matSortChange)="sort.emit($event)"
+  [matSortActive]="activeParams?.sort"
+  [matSortDirection]="activeParams?.direction"
+  [dataSource]="data">
+
+  <!-- link -->
+  <ng-container matColumnDef="_link" sticky>
+
+    <th
+      mat-header-cell
+      class="__link-cell  __link-cell--header"
+      *matHeaderCellDef>
+    </th>
+
+    <td
+      mat-cell
+      class="__link-cell"
+      *matCellDef="let item">
+      <div class="__link-cell_content  __cell-content">
+        <ng-template
+          [ngTemplateOutletContext]="{ $implicit: item }"
+          [ngTemplateOutlet]="linkTemplate">
+        </ng-template>
+      </div>
+    </td>
+
+  </ng-container>
+
+  <!-- options -->
+  <ng-container matColumnDef="_options">
+
+    <th
+      mat-header-cell
+      class="__options-cell"
+      *matHeaderCellDef>
+      <div class="__options-cell_content  [ __cell-content  __cell-content--header ]">
+        -
+      </div>
+    </th>
+
+    <td
+      mat-cell
+      class="__options-cell"
+      *matCellDef="let element">
+      <div class="__options-cell_content">
+        <button
+          #matMenuTrigger
+          mat-icon-button
+          *ngIf="menuRef"
+          [matMenuTriggerFor]="menuRef"
+          (click)="optionOpen.emit(element)">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </div>
+    </td>
+
+  </ng-container>
+
+  <!-- data -->
+  <ng-container
+    *ngFor="let column of columns; trackBy: trackBy;"
+    [matColumnDef]="column.name">
+
+    <th
+      mat-header-cell
+      *matHeaderCellDef
+      mat-sort-header>
+      <div class="__cell-content  __cell-content--header">
+        {{ column.alias }}
+      </div>
+    </th>
+
+    <td
+      mat-cell
+      *matCellDef="let item">
+      <div class="__cell-content">
+
+        <ng-container *ngIf="cellTemplates[column.name]; else noTemplateRef">
+          <ng-template
+            [ngTemplateOutletContext]="{ $implicit: item }"
+            [ngTemplateOutlet]="cellTemplates[column.name]">
+          </ng-template>
+        </ng-container>
+
+        <ng-template #noTemplateRef>
+          <ng-container [ngSwitch]="column.type">
+
+            <ng-container *ngSwitchCase="columnTypes.Int">
+              {{
+                (item | nestedPath: column.name)
+                ? (item | nestedPath: column.name)
+                : (item | nestedPath: column.name) === 0
+                  ? '0'
+                  : '-'
+              }}
+            </ng-container>
+
+            <ng-container *ngSwitchCase="columnTypes.Float">
+              {{
+                (item | nestedPath: column.name)
+                ? (item | nestedPath: column.name)
+                : (item | nestedPath: column.name) === 0
+                  ? '0'
+                  : '-'
+              }}
+            </ng-container>
+
+            <ng-container *ngSwitchCase="columnTypes.Datetime">
+              {{ item && item[column.name] ? (item[column.name] | date: 'medium') : '-' }}
+            </ng-container>
+
+            <ng-container *ngSwitchCase="columnTypes.Boolean">
+              {{ (item[column.name] ? 'COMMON.YES' : 'COMMON.NO') | translate }}
+            </ng-container>
+
+            <ng-container *ngSwitchCase="columnTypes.Enum">
+              {{ (item | nestedPath: column.name | enumTranslate: column) || '-' }}
+            </ng-container>
+
+            <ng-container *ngSwitchDefault>
+              {{ (item | nestedPath: column.name) || '-' }}
+            </ng-container>
+
+          </ng-container>
+        </ng-template>
+
+      </div>
+    </td>
+
+  </ng-container>
+
+  <tr
+    mat-header-row
+    class="__header"
+    *matHeaderRowDef="activeColumns; sticky: true">
+  </tr>
+
+  <tr
+    mat-row
+    class="__row"
+    [class.is-highlighted]="customRowClassFnc ? customRowClassFnc(row) : false"
+    *matRowDef="let row; columns: activeColumns">
+  </tr>
+
+</table>

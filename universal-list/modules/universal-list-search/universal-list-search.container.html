@@ -1,0 +1,244 @@
+<form
+  class="__search-form"
+  autocomplete="off"
+  #formRef
+  [formGroup]="searchForm">
+
+  <mat-form-field
+    zpsStoreDimensions="universalListSearchField"
+    [satPopoverAnchorFor]="suggestPopRef"
+    appearance="fill"
+    floatLabel="never">
+
+    <mat-label>
+      Začni vyhledávat, nebo filtrovat..
+    </mat-label>
+
+    <input
+      matInput
+      #searchInputRef
+      (focus)="onFocus(); suggestLinkTemplate ? suggestPopRef.open() : undefined;"
+      (blur)="onBlur;unpauseSearch();"
+      (keyup)="onKeyUp($event)"
+      (keydown)="onKeyDown($event)"
+      [formControl]="searchForm"
+      type="text"
+    />
+
+    <span matPrefix>
+      <mat-icon class="__prefix-icon">search</mat-icon>
+    </span>
+
+  </mat-form-field>
+
+  <div class="__suffix">
+
+    <button
+      type="button"
+      mat-icon-button
+      [satPopoverAnchorFor]="bookmarksPopRef"
+      type="button"
+      (click)="bookmarksPopRef.toggle()"
+      *ngIf="bookmarksRef">
+      <mat-icon>favorite_border</mat-icon>
+    </button>
+
+    <button
+      type="button"
+      mat-icon-button
+      [satPopoverAnchorFor]="filtersPopRef"
+      type="button"
+      (click)="filtersPopRef.toggle()">
+      <mat-icon>filter_list</mat-icon>
+    </button>
+
+    <button
+      type="button"
+      (click)="navigate(false, false)"
+      mat-icon-button>
+      <mat-icon>send</mat-icon>
+    </button>
+
+  </div>
+
+</form>
+
+<!-- suggest pop -->
+<sat-popover
+  hasBackdrop
+  #suggestPopRef
+  (afterOpen)="preventFocusRestore(suggestPopRef)"
+  [autoFocus]="false"
+  verticalAlign="below"
+  forceAlignment
+  horizontalAlign="start">
+
+  <mat-card
+    *ngIf="suggestLinkTemplate"
+    cdkTrapFocus
+    [style.width.px]="searchWidth$ | async"
+    class="__suggest-pop">
+    <vsh-scrollable [maxHeight]="maxHeight - popOffset - 50">
+
+      <div class="__suggest-spinner-wrap" *ngIf="suggestRunning">
+        <mat-spinner class="__suggest-spinner" [diameter]="20"></mat-spinner>
+      </div>
+
+      <!-- results for suggest -->
+      <ng-container *ngIf="!suggestRunning && (searchSuggestData$ | async) as searchSuggestData">
+        <vsh-universal-list-suggest-item
+          class="__suggest-item"
+          (click)="suggestedActivated.emit(item.id)"
+          [isActive]="focused && index === activeIndex"
+          [entityId]="item.id"
+          *ngFor="let item of searchSuggestData; let index = index; trackBy: trackBy;">
+          <ng-template
+            [ngTemplateOutletContext]="{ $implicit: item }"
+            [ngTemplateOutlet]="suggestLinkTemplate">
+          </ng-template>
+        </vsh-universal-list-suggest-item>
+      </ng-container>
+
+    </vsh-scrollable>
+  </mat-card>
+
+</sat-popover>
+
+<!-- filters pop -->
+<sat-popover
+  hasBackdrop
+  #filtersPopRef
+  [autoFocus]="false"
+  (afterOpen)="preventFocusRestore(filtersPopRef)"
+  verticalAlign="start"
+  horizontalAlign="end">
+  <mat-card class="__filters-pop">
+
+    <div class="c-pop-header  __filters-pop_header">
+      <span>
+        Filtry
+      </span>
+
+      <mat-slide-toggle
+        *ngIf="!colSearchForm.value"
+        color="primary"
+        class="__inactive-columns-toggle"
+        [formControl]="allFiltersForm">
+        Zobrazit pro neaktivní sloupce
+      </mat-slide-toggle>
+
+      <button
+        mat-icon-button
+        type="button"
+        (click)="filtersPopRef.close()">
+        <mat-icon>close</mat-icon>
+      </button>
+
+    </div>
+
+    <div>
+      <mat-form-field
+        appearance="fill"
+        floatLabel="never">
+
+        <mat-label>Hledat podle názvu sloupce..</mat-label>
+
+        <input
+          type="text"
+          autofocus
+          #colSearchInputRef
+          [formControl]="colSearchForm"
+          matInput
+        />
+
+      </mat-form-field>
+    </div>
+
+    <form
+      (submit)="navigate()"
+      [formGroup]="filterForm">
+
+      <vsh-scrollable
+        [height]="maxHeight - popOffset - 50"
+        [minHeight]="maxHeight - popOffset - 50">
+        <ng-template [ngIf]="filterRenderer$ | async">
+          <vsh-universal-list-search-item
+            [data]="item"
+            [forceShow]="!!allFiltersForm.value
+              || (colSearchForm.value && item.name.includes(colSearchForm.value))
+              || (colSearchForm.value && item.alias.includes(colSearchForm.value))"
+            [forceHide]="!!colSearchForm.value"
+            [activeFiltersMap]="activeFiltersMap"
+            [suggested]="(!item.reference || !item.suggest)
+              ? []
+              : ((item.name | suggestedFilters: item.reference) | async)"
+            [form]="filterForm.at(index).get('items').controls"
+            [index]="index"
+            (suggest)="onSuggest$.next($event)"
+            (suggestChosen)="onSuggestChosen$.next($event)"
+            (addAndControl)="addAndControl(index)"
+            (removeAndControl)="removeAndControl(index, $event)"
+            *ngFor="let item of (favoriteColumns$ | async);
+              let index = index;
+              trackBy: trackBy;">
+          </vsh-universal-list-search-item>
+        </ng-template>
+      </vsh-scrollable>
+
+      <div
+        fxLayout="row"
+        fxLayoutAlign="end center"
+        class="__footer">
+
+        <button
+          mat-button
+          color="warn"
+          type="button"
+          tabindex="-1"
+          (click)="navigate(true);!!filtersPopRef.close()">
+          Zrušit Filtry
+        </button>
+
+        <button
+          mat-raised-button
+          class="__send"
+          type="submit"
+          color="accent">
+          Vyhledat <mat-icon class="__send-icon">send</mat-icon>
+        </button>
+
+      </div>
+
+    </form>
+
+  </mat-card>
+</sat-popover>
+
+<!-- bookmarks pop -->
+<sat-popover
+  hasBackdrop
+  #bookmarksPopRef
+  [autoFocus]="false"
+  (afterOpen)="preventFocusRestore(bookmarksPopRef)"
+  verticalAlign="start"
+  horizontalAlign="end">
+  <mat-card class="__bookmarks-pop">
+
+    <div class="c-pop-header  __bookmarks-pop_header">
+      <span>
+        Uložené nastavení filtrů
+      </span>
+
+      <button
+        mat-icon-button
+        type="button"
+        (click)="bookmarksPopRef.close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <vsh-scrollable [maxHeight]="maxHeight - popOffset - 25">
+      <ng-template [ngTemplateOutlet]="bookmarksRef"></ng-template>
+    </vsh-scrollable>
+  </mat-card>
+</sat-popover>

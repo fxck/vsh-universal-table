@@ -1,0 +1,130 @@
+<ng-container *ngIf="showData$ | async">
+
+  <div
+    class="__column-filter-trigger-wrap"
+    *ngIf="columnFilterRef">
+    <button
+      class="__column-filter-trigger"
+      mat-icon-button
+      type="button"
+      (click)="columntFilterPopRef.open()"
+      [satPopoverAnchorFor]="columntFilterPopRef"
+      matTooltip="Vybrat sloupce">
+      <mat-icon>view_column</mat-icon>
+    </button>
+  </div>
+
+  <vsh-scrollable
+    #tableScrollableRef
+    [maxHeight]="maxHeight - 56">
+    <vsh-universal-list-table
+      [data]="data$ | async"
+      [columns]="columns$ | async"
+      [activeColumns]="activeColumns$ | async"
+      [activeParams]="params$ | async"
+      [linkTemplate]="linkTemplate"
+      [cellTemplates]="cellTemplatesMap"
+      [customRowClassFnc]="customRowClassFnc"
+      [isLoading]="dataLoading$ | async"
+      [menuRef]="menuRef"
+      (sort)="sort($event)"
+      (optionOpen)="menuOpened.emit($event)">
+    </vsh-universal-list-table>
+  </vsh-scrollable>
+
+  <div class="__footer-wrap">
+    <div
+      *ngIf="showFooter"
+      class="__footer"
+      fxLayout
+      fxLayoutAlign="space-between center">
+
+      <div fxFlex="50">
+        <div
+          *ngIf="(activeColumns$ | async).length > 1"
+          class="u-text--left"
+          fxLayoutAlign="start center">
+
+          <button
+            mat-button
+            class="__export"
+            type="button"
+            (click)="this.onDownload$.next()"
+            matTooltipPosition="left"
+            matTooltip="Exportovat záznamy">
+            <mat-icon class="__export-icon">save_alt</mat-icon> Exportovat záznamy do
+          </button>
+
+          <mat-select
+            *ngIf="(exportFormats$ | async) as exportFormats"
+            class="__format-select"
+            [formControl]="formatCtrl">
+            <mat-option
+              *ngFor="let exportFormat of exportFormats"
+              [value]="exportFormat">
+              {{ exportFormat }}
+            </mat-option>
+          </mat-select>
+
+        </div>
+      </div>
+
+      <div fxFlex="50">
+        <mat-paginator
+          class="__paginator"
+          hidePageSize
+          [length]="total$ | async"
+          [pageIndex]="currentPage$ | async"
+          (page)="page($event)"
+          [pageSize]="pageSize">
+        </mat-paginator>
+      </div>
+
+    </div>
+  </div>
+
+  <sat-popover
+    hasBackdrop
+    #columntFilterPopRef
+    [autoFocus]="false"
+    verticalAlign="start"
+    horizontalAlign="start">
+    <mat-card class="__column-filter-card">
+
+      <div class="c-pop-header">
+        <span>
+          Zobrazené sloupce
+        </span>
+
+        <button
+          mat-icon-button
+          type="button"
+          (click)="columntFilterPopRef.close()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <vsh-scrollable [maxHeight]="maxHeight - 100 - 65">
+        <ng-template [ngTemplateOutlet]="columnFilterRef"></ng-template>
+      </vsh-scrollable>
+
+    </mat-card>
+  </sat-popover>
+
+</ng-container>
+
+<div
+  class="__spinner-wrap"
+  *ngIf="(showLoading$ | async)">
+  <mat-progress-spinner
+    class="__spinner"
+    diameter="30"
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>
+
+<div
+  class="__empty-state"
+  *ngIf="showEmptyState$ | async"
+  translate="COMMON.NO_ENTRIES_FOUND">
+</div>

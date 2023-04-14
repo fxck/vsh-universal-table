@@ -1,0 +1,116 @@
+@import 'variables';
+@import 'theme';
+@import 'functions';
+
+:host {
+  position: relative;
+
+  display: block;
+
+  &:hover {
+    .__add-button-wrap {
+      opacity: 1;
+    }
+
+    .__inner {
+      background: #f2f2f2;
+    }
+  }
+}
+
+  .__is-not-checkbox {
+    padding-right: $bu / 2;
+  }
+
+  .__wrap {
+    &.is-hidden {
+      display: none;
+    }
+  }
+
+  .__inner {
+    padding: 5px 12px;
+    padding-bottom: 10px;
+    padding-right: $bu;
+
+    transition: background-color 200ms;
+  }
+
+  .__title {
+    padding-top: 17px;
+    padding-right: 10px;
+
+    word-break: break-word;
+
+    &.has-add-button {
+      padding-bottom: 20px;
+    }
+
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
+
+  .__form-field {
+    font-size: 14px;
+
+    &::ng-deep {
+      .mat-form-field-underline {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+
+  .__add-button-wrap {
+    position: absolute;
+    bottom: 2px;
+    left: 7px;
+
+    opacity: 0;
+
+    transition: opacity 200ms;
+  }
+
+  .__add-button {
+    line-height: 25px;
+    padding: 0 6px;
+
+    font-size: 12px;
+    text-transform: uppercase;
+
+    strong {
+      vertical-align: middle;
+    }
+  }
+
+  .__filters_filter {
+    position: relative;
+
+    &:hover {
+      .__remove-button {
+        opacity: 1;
+      }
+    }
+  }
+
+  .__remove-button {
+    position: absolute;
+    right: -5px;
+    top: 8px;
+
+    height: 30px;
+    line-height: 30px;
+    width: 30px;
+
+    opacity: 0;
+
+    transition: opacity 100ms;
+  }
+
+  .__remove-button_icon {
+    height: 20px;
+    line-height: 20px;
+    width: 20px;
+
+    font-size: 20px;
+  }

@@ -1,0 +1,71 @@
+<div
+  fxLayout="row wrap"
+  fxLayoutAlign="center start"
+  fxLayoutGap="12px grid">
+
+  <div fxFlex="50">
+    <h5 class="__title">Neaktivní sloupce</h5>
+
+    <mat-form-field class="__search-field" floatLabel="never">
+      <mat-icon class="__search-icon" matPrefix>search</mat-icon>
+      <input
+        class="__search"
+        matInput
+        [formControl]="searchForm"
+        placeholder="Najít sloupec.."
+        type="text"
+      />
+    </mat-form-field>
+
+    <form [formGroup]="form.inactive">
+      <ng-container *ngFor="let ctrl of form.inactive.controls; trackBy: trackBy;">
+        <div
+          class="__item"
+          [style.display]="!searchForm?.value || ctrl.get('alias').value.includes(searchForm.value) || ctrl.get('name').value.includes(searchForm.value)
+            ? 'block'
+            : 'none'">
+
+          <mat-checkbox
+            (change)="onSubmit$.next()"
+            [formControl]="ctrl.get('value')">
+            <span class="__col-name">{{ ctrl.get('alias').value }}</span>
+          </mat-checkbox>
+
+        </div>
+      </ng-container>
+
+    </form>
+
+  </div>
+
+  <div fxFlex="50">
+
+    <h5 class="__title  __title--active">Aktivní sloupce</h5>
+
+    <form [formGroup]="form.active">
+      <cdk-drop-list
+        [cdkDropListData]="form.active.controls"
+        (cdkDropListDropped)="drop($event)">
+        <div
+          class="__item"
+          *ngFor="let ctrl of form.active.controls; trackBy: trackBy;"
+          cdkDrag>
+
+          <mat-icon
+            cdkDragHandle
+            class="__drag-handle">
+            drag_handle
+          </mat-icon>
+
+          <mat-checkbox
+            (change)="onSubmit$.next()"
+            [formControl]="ctrl.get('value')">
+            <span class="__col-name">{{ ctrl.get('alias').value }}</span>
+          </mat-checkbox>
+
+        </div>
+      </cdk-drop-list>
+    </form>
+  </div>
+
+</div>
